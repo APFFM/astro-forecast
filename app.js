@@ -103,11 +103,14 @@ async function saveSettingsHandler() {
     state.apiKey = apiKey;
     localStorage.setItem('gemini_api_key', apiKey);
 
-    // List available models
+    // List available models - DON'T load content yet
     await listAvailableModels();
 
+    alert('API key saved! Check the browser console (F12) to see available models.');
+
     hideSettingsModal();
-    loadContent();
+    // Don't auto-load content - let user check console first
+    // loadContent();
 }
 
 // List Available Models
