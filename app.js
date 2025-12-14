@@ -360,6 +360,8 @@ async function callGeminiAPI(prompt) {
     }
 
     try {
+        console.log('Calling Gemini API with endpoint:', GEMINI_API_ENDPOINT);
+
         const response = await fetch(`${GEMINI_API_ENDPOINT}?key=${state.apiKey}`, {
             method: 'POST',
             headers: {
@@ -372,21 +374,24 @@ async function callGeminiAPI(prompt) {
                     }]
                 }],
                 generationConfig: {
-                    temperature: 0.9,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 1024,
+                    temperature: 0.4,
+                    topK: 32,
+                    topP: 1,
+                    maxOutputTokens: 2048,
                 }
             })
         });
 
         if (!response.ok) {
             const error = await response.json();
-            console.error('API Error:', error);
-            return `Error: ${error.error?.message || 'Failed to fetch data. Please check your API key.'}`;
+            console.error('API Error Details:', error);
+            console.error('Status:', response.status);
+            console.error('Endpoint used:', GEMINI_API_ENDPOINT);
+            return `Error: ${error.error?.message || 'Failed to fetch data. Please check your API key.'}<br><br>Endpoint: ${GEMINI_API_ENDPOINT}`;
         }
 
         const data = await response.json();
+        console.log('API Response received successfully');
         return data.candidates[0].content.parts[0].text;
 
     } catch (error) {
