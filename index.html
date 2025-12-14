@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astro Forecast - Your Personal Astronomy Guide</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1 class="logo">Astro Forecast</h1>
+                <button class="settings-btn" id="settingsBtn">⚙️</button>
+            </div>
+        </header>
+
+        <!-- Zodiac Sign Selector -->
+        <div class="zodiac-selector" id="zodiacSelector">
+            <h2 class="you-header">You ></h2>
+            <div class="zodiac-signs">
+                <div class="zodiac-item">
+                    <span class="zodiac-icon">☉</span>
+                    <select id="sunSign" class="sign-select">
+                        <option value="">Sun Sign</option>
+                        <option value="aries">Aries</option>
+                        <option value="taurus">Taurus</option>
+                        <option value="gemini">Gemini</option>
+                        <option value="cancer">Cancer</option>
+                        <option value="leo">Leo</option>
+                        <option value="virgo">Virgo</option>
+                        <option value="libra">Libra</option>
+                        <option value="scorpio">Scorpio</option>
+                        <option value="sagittarius">Sagittarius</option>
+                        <option value="capricorn">Capricorn</option>
+                        <option value="aquarius">Aquarius</option>
+                        <option value="pisces">Pisces</option>
+                    </select>
+                </div>
+                <div class="zodiac-item">
+                    <span class="zodiac-icon">☽</span>
+                    <select id="moonSign" class="sign-select">
+                        <option value="">Moon Sign</option>
+                        <option value="aries">Aries</option>
+                        <option value="taurus">Taurus</option>
+                        <option value="gemini">Gemini</option>
+                        <option value="cancer">Cancer</option>
+                        <option value="leo">Leo</option>
+                        <option value="virgo">Virgo</option>
+                        <option value="libra">Libra</option>
+                        <option value="scorpio">Scorpio</option>
+                        <option value="sagittarius">Sagittarius</option>
+                        <option value="capricorn">Capricorn</option>
+                        <option value="aquarius">Aquarius</option>
+                        <option value="pisces">Pisces</option>
+                    </select>
+                </div>
+                <div class="zodiac-item">
+                    <span class="zodiac-icon">↑</span>
+                    <select id="risingSign" class="sign-select">
+                        <option value="">Rising Sign</option>
+                        <option value="aries">Aries</option>
+                        <option value="taurus">Taurus</option>
+                        <option value="gemini">Gemini</option>
+                        <option value="cancer">Cancer</option>
+                        <option value="leo">Leo</option>
+                        <option value="virgo">Virgo</option>
+                        <option value="libra">Libra</option>
+                        <option value="scorpio">Scorpio</option>
+                        <option value="sagittarius">Sagittarius</option>
+                        <option value="capricorn">Capricorn</option>
+                        <option value="aquarius">Aquarius</option>
+                        <option value="pisces">Pisces</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="horoscope">Horoscope</button>
+            <button class="tab-btn" data-tab="astro-events">Astro Events</button>
+            <button class="tab-btn" data-tab="moon">Moon</button>
+        </div>
+
+        <!-- Horoscope Tab -->
+        <div class="tab-content active" id="horoscope">
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="card-icon">💡</div>
+                    <h3>Daily Tips</h3>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">⚖️</div>
+                    <h3>Do / Don't</h3>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">🍀</div>
+                    <h3>Today's Luck</h3>
+                </div>
+            </div>
+
+            <div class="horoscope-content" id="horoscopeContent">
+                <div class="loading">
+                    <div class="stars">⭐ ⭐ ⭐</div>
+                    <p>Scanning the sky for your forecast...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Astro Events Tab -->
+        <div class="tab-content" id="astro-events">
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="card-icon">🔮</div>
+                    <h3>What Are Transits?</h3>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">🌙</div>
+                    <h3>Short-Term Transit</h3>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">🌕</div>
+                    <h3>Long-Term Transit</h3>
+                </div>
+            </div>
+
+            <div class="event-card" id="eventOfDay">
+                <p class="event-label">Event of the day</p>
+                <h2 class="event-title">Loading...</h2>
+                <div class="event-content">
+                    <div class="loading">
+                        <div class="stars">⭐ ⭐ ⭐</div>
+                        <p>Calculating cosmic events...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moon Tab -->
+        <div class="tab-content" id="moon">
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="card-icon moon-phase-icon" id="moonPhaseIcon">🌙</div>
+                    <h3 id="moonPhaseName">Loading...</h3>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">♎</div>
+                    <h3 id="moonInSign">Moon in...</h3>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">🕯️</div>
+                    <h3>Moon Rituals</h3>
+                </div>
+            </div>
+
+            <div class="moon-details" id="moonDetails">
+                <div class="moon-card">
+                    <p class="date-range" id="moonDateRange"></p>
+                    <h2 id="moonPhaseTitle">Moon Phase</h2>
+                    <div class="moon-visual">
+                        <div class="moon-image" id="moonImage">🌙</div>
+                        <div class="moon-sign-info">
+                            <span class="moon-sign-icon" id="moonSignIcon">♎</span>
+                            <p id="moonSignText">Moon in Libra</p>
+                        </div>
+                    </div>
+                    <div class="moon-calendar" id="moonCalendar">
+                        <!-- Will be populated by JS -->
+                    </div>
+                </div>
+                <div class="moon-description" id="moonDescription">
+                    <div class="loading">
+                        <div class="stars">⭐ ⭐ ⭐</div>
+                        <p>Calculating moon phase...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="close-btn" id="closeSettings">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label for="apiKey">Gemini API Key:</label>
+                        <input type="password" id="apiKey" placeholder="Enter your Gemini API key">
+                        <small>Your API key is stored locally in your browser</small>
+                    </div>
+                    <button class="save-btn" id="saveSettings">Save Settings</button>
+                    <div class="api-info">
+                        <p>Don't have an API key?</p>
+                        <a href="https://makersuite.google.com/app/apikey" target="_blank">Get one from Google AI Studio</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
