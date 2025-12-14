@@ -92,7 +92,7 @@ function hideSettingsModal() {
     settingsModal.classList.remove('active');
 }
 
-function saveSettingsHandler() {
+async function saveSettingsHandler() {
     const apiKey = apiKeyInput.value.trim();
 
     if (!apiKey) {
@@ -103,8 +103,41 @@ function saveSettingsHandler() {
     state.apiKey = apiKey;
     localStorage.setItem('gemini_api_key', apiKey);
 
+    // List available models
+    await listAvailableModels();
+
     hideSettingsModal();
     loadContent();
+}
+
+// List Available Models
+async function listAvailableModels() {
+    try {
+        console.log('Fetching available models...');
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${state.apiKey}`);
+
+        if (!response.ok) {
+            console.error('Failed to fetch models');
+            return;
+        }
+
+        const data = await response.json();
+        console.log('Available models:', data.models);
+
+        // Find models that support generateContent
+        const generateContentModels = data.models.filter(model =>
+            model.supportedGenerationMethods?.includes('generateContent')
+        );
+
+        console.log('Models supporting generateContent:');
+        generateContentModels.forEach(model => {
+            console.log(`  - ${model.name}`);
+        });
+
+        return generateContentModels;
+    } catch (error) {
+        console.error('Error listing models:', error);
+    }
 }
 
 // Tab Switching
