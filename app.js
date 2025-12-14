@@ -36,10 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load saved settings
 function loadSettings() {
-    apiKeyInput.value = state.apiKey;
-    sunSignSelect.value = state.sunSign;
-    moonSignSelect.value = state.moonSign;
-    risingSignSelect.value = state.risingSign;
+    if (apiKeyInput) apiKeyInput.value = state.apiKey;
+    if (sunSignSelect) sunSignSelect.value = state.sunSign;
+    if (moonSignSelect) moonSignSelect.value = state.moonSign;
+    if (risingSignSelect) risingSignSelect.value = state.risingSign;
+
+    // Show current selections in UI
+    console.log('Settings loaded:', {
+        sunSign: state.sunSign,
+        moonSign: state.moonSign,
+        risingSign: state.risingSign
+    });
 }
 
 // Setup Event Listeners
@@ -192,19 +199,32 @@ async function loadHoroscope() {
         return;
     }
 
-    const prompt = `As a professional astrologer, provide today's horoscope for ${state.sunSign}.
-    Include:
-    1. General forecast for the day
-    2. Love and relationships
-    3. Career and money
-    4. Health and wellness
-    5. Lucky color and number
+    const prompt = `As a professional astrologer, provide today's horoscope for ${capitalize(state.sunSign)}.
 
-    Format it in a beautiful, engaging way with emojis. Keep it positive and insightful.`;
+    Include:
+    1. 🌟 **Overall Energy** - General forecast for the day
+    2. 💕 **Love & Relationships** - Romantic and social insights
+    3. 💼 **Career & Money** - Professional and financial guidance
+    4. 🧘 **Health & Wellness** - Physical and mental well-being
+    5. ✨ **Lucky Elements**:
+       - Lucky Color
+       - Lucky Number
+       - Lucky Time of Day
+       - Power Crystal
+    6. 🎨 **Visual Mood** - Describe the day's energy using celestial imagery (like "shimmering stars", "radiant sun", "gentle moonlight")
+
+    Format it in a beautiful, mystical way with relevant emojis. Keep it positive, insightful, and visually descriptive.`;
 
     const response = await callGeminiAPI(prompt);
 
+    // Generate zodiac symbol SVG
+    const zodiacSVG = generateZodiacSVG(state.sunSign);
+
     document.getElementById('horoscopeContent').innerHTML = `
+        <div class="horoscope-header">
+            ${zodiacSVG}
+            <h2 style="font-size: 28px; margin: 20px 0; background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${capitalize(state.sunSign)} Today</h2>
+        </div>
         <div style="line-height: 1.8;">
             ${formatResponse(response)}
         </div>
@@ -222,23 +242,33 @@ async function loadAstroEvents() {
     const prompt = `As an expert astrologer, tell me about the most significant astrological event happening today (${today}).
 
     Include:
-    1. The name of the event (e.g., Mercury Retrograde, Jupiter Transit, Full Moon, etc.)
-    2. A detailed explanation of what this event means
-    3. How it might affect people generally
-    4. Practical advice for navigating this energy
+    1. 🌌 **Event Name** - The main cosmic event (e.g., Mercury Retrograde, Jupiter Transit, Full Moon, etc.)
+    2. 🔮 **Cosmic Significance** - What this event means from an astrological perspective
+    3. 🌍 **General Impact** - How it affects people collectively
+    4. 💫 **Zodiac Focus** - Which zodiac signs are most affected
+    5. ✨ **Practical Guidance** - Actionable advice for navigating this energy
+    6. 🎨 **Visual Description** - Describe this cosmic event using vivid celestial imagery (planetary alignments, energy colors, cosmic patterns)
 
-    Be mystical yet practical. Use emojis appropriately.`;
+    Be mystical, poetic, and practical. Use emojis and rich visual language.`;
 
     const response = await callGeminiAPI(prompt);
 
     // Extract title from response (first line typically)
     const lines = response.split('\n').filter(line => line.trim());
-    const title = lines[0].replace(/[#*]/g, '').trim();
+    const title = lines[0].replace(/[#*]/g, '').replace(/[🌌🔮🌍💫✨🎨]/g, '').trim();
     const content = lines.slice(1).join('\n');
 
+    // Generate planet SVG for the event
+    const planetSVG = generatePlanetSVG();
+
     document.getElementById('eventOfDay').innerHTML = `
-        <p class="event-label">Event of the day</p>
-        <h2 class="event-title">${title}</h2>
+        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+            ${planetSVG}
+            <div>
+                <p class="event-label">Event of the day</p>
+                <h2 class="event-title">${title}</h2>
+            </div>
+        </div>
         <div class="event-content" style="line-height: 1.8;">
             ${formatResponse(content)}
         </div>
@@ -254,13 +284,14 @@ async function loadMoonInfo() {
     The moon is currently in ${moonSign}.
 
     Include:
-    1. The meaning of this moon phase
-    2. Best activities during this phase
-    3. What to avoid
-    4. How the moon in ${moonSign} affects the energy
-    5. Ritual suggestions
+    1. 🌙 **Phase Meaning** - The spiritual and practical significance of ${moonData.phaseName}
+    2. ✅ **Best Activities** - What to do during this phase (manifestation, release, planning, etc.)
+    3. ⛔ **What to Avoid** - Actions that go against this lunar energy
+    4. ${getZodiacSymbol(moonSign)} **Moon in ${moonSign}** - How this zodiac placement affects the moon's energy
+    5. 🕯️ **Ritual Suggestions** - Simple ceremonies or practices for this phase
+    6. 🎨 **Visual Imagery** - Describe the moon's energy using poetic celestial language
 
-    Be mystical and practical. Use emojis.`;
+    Be mystical, practical, and visually descriptive. Use emojis and rich imagery.`;
 
     const response = await callGeminiAPI(prompt);
 
@@ -269,6 +300,25 @@ async function loadMoonInfo() {
             ${formatResponse(response)}
         </div>
     `;
+}
+
+// Get zodiac symbol
+function getZodiacSymbol(signName) {
+    const symbols = {
+        'Aries': '♈',
+        'Taurus': '♉',
+        'Gemini': '♊',
+        'Cancer': '♋',
+        'Leo': '♌',
+        'Virgo': '♍',
+        'Libra': '♎',
+        'Scorpio': '♏',
+        'Sagittarius': '♐',
+        'Capricorn': '♑',
+        'Aquarius': '♒',
+        'Pisces': '♓'
+    };
+    return symbols[signName] || '🌙';
 }
 
 // Calculate Moon Phase
@@ -452,4 +502,115 @@ function formatResponse(text) {
 // Capitalize first letter
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Generate Planet SVG
+function generatePlanetSVG() {
+    return `
+        <svg width="80" height="80" viewBox="0 0 80 80" style="filter: drop-shadow(0 0 15px rgba(244, 197, 66, 0.5));">
+            <!-- Planet with rings (Saturn-like) -->
+            <defs>
+                <radialGradient id="planetGradient">
+                    <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#f4c542;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#daa520;stop-opacity:1" />
+                </radialGradient>
+                <linearGradient id="ringGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#f4c542;stop-opacity:0.8" />
+                    <stop offset="50%" style="stop-color:#ffd700;stop-opacity:0.4" />
+                    <stop offset="100%" style="stop-color:#f4c542;stop-opacity:0.8" />
+                </linearGradient>
+            </defs>
+
+            <!-- Ring (back) -->
+            <ellipse cx="40" cy="40" rx="35" ry="12" fill="none" stroke="url(#ringGradient)" stroke-width="3" opacity="0.6"/>
+
+            <!-- Planet -->
+            <circle cx="40" cy="40" r="20" fill="url(#planetGradient)"/>
+            <circle cx="40" cy="40" r="20" fill="url(#planetGradient)" opacity="0.3" style="animation: planetPulse 3s ease-in-out infinite;"/>
+
+            <!-- Planet details -->
+            <ellipse cx="35" cy="35" rx="5" ry="3" fill="rgba(218, 165, 32, 0.3)"/>
+            <ellipse cx="42" cy="45" rx="6" ry="4" fill="rgba(218, 165, 32, 0.3)"/>
+
+            <!-- Ring (front) -->
+            <path d="M 5,40 Q 5,50 40,52 T 75,40" fill="none" stroke="url(#ringGradient)" stroke-width="3" opacity="0.8"/>
+
+            <style>
+                @keyframes planetPulse {
+                    0%, 100% { transform: scale(1); opacity: 0.3; }
+                    50% { transform: scale(1.05); opacity: 0.5; }
+                }
+            </style>
+        </svg>
+    `;
+}
+
+// Generate Zodiac SVG
+function generateZodiacSVG(sign) {
+    const zodiacSymbols = {
+        aries: '♈',
+        taurus: '♉',
+        gemini: '♊',
+        cancer: '♋',
+        leo: '♌',
+        virgo: '♍',
+        libra: '♎',
+        scorpio: '♏',
+        sagittarius: '♐',
+        capricorn: '♑',
+        aquarius: '♒',
+        pisces: '♓'
+    };
+
+    const symbol = zodiacSymbols[sign] || '⭐';
+
+    return `
+        <div class="zodiac-visual" style="text-align: center; margin: 20px 0;">
+            <svg width="120" height="120" viewBox="0 0 120 120" style="filter: drop-shadow(0 0 20px rgba(244, 197, 66, 0.6));">
+                <!-- Outer glow circle -->
+                <circle cx="60" cy="60" r="55" fill="none" stroke="url(#goldGradient)" stroke-width="2" opacity="0.3"/>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="url(#goldGradient)" stroke-width="1" opacity="0.5"/>
+
+                <!-- Main circle background -->
+                <circle cx="60" cy="60" r="45" fill="rgba(244, 197, 66, 0.1)" stroke="url(#goldGradient)" stroke-width="2"/>
+
+                <!-- Zodiac symbol -->
+                <text x="60" y="60" text-anchor="middle" dominant-baseline="central"
+                      font-size="48" fill="url(#goldGradient)" style="font-weight: bold;">
+                    ${symbol}
+                </text>
+
+                <!-- Gradient definition -->
+                <defs>
+                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#f4c542;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ffd700;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+
+                <!-- Rotating stars -->
+                <g style="animation: rotateStars 20s linear infinite; transform-origin: 60px 60px;">
+                    <circle cx="60" cy="15" r="2" fill="#f4c542" opacity="0.8"/>
+                    <circle cx="105" cy="60" r="2" fill="#f4c542" opacity="0.8"/>
+                    <circle cx="60" cy="105" r="2" fill="#f4c542" opacity="0.8"/>
+                    <circle cx="15" cy="60" r="2" fill="#f4c542" opacity="0.8"/>
+                </g>
+            </svg>
+
+            <style>
+                @keyframes rotateStars {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                .zodiac-visual svg {
+                    animation: float 3s ease-in-out infinite;
+                }
+                @keyframes float {
+                    0%, 100% { transform: translateY(0px); }
+                    50% { transform: translateY(-10px); }
+                }
+            </style>
+        </div>
+    `;
 }
