@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
     setupEventListeners();
     calculateMoonPhase();
+    setupFeatureCardListeners();
 
     // Load initial content if API key exists
     if (state.apiKey) {
@@ -47,6 +48,190 @@ function loadSettings() {
         moonSign: state.moonSign,
         risingSign: state.risingSign
     });
+}
+
+// Setup Feature Card Listeners
+function setupFeatureCardListeners() {
+    // Add click handlers to all feature cards
+    document.querySelectorAll('.feature-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const title = this.querySelector('h3').textContent;
+            handleFeatureCardClick(title);
+        });
+    });
+}
+
+// Handle feature card clicks
+async function handleFeatureCardClick(cardTitle) {
+    console.log('Feature card clicked:', cardTitle);
+
+    if (!state.apiKey) {
+        alert('Please set your API key in settings first');
+        showSettingsModal();
+        return;
+    }
+
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    let prompt = '';
+    let targetElement = '';
+
+    // Determine which content to generate based on card title
+    switch(cardTitle.toLowerCase()) {
+        case 'daily tips':
+            targetElement = 'horoscopeContent';
+            prompt = `IMPORTANT: Today is ${dateStr}.
+
+            As a professional astrologer, provide daily tips for ${capitalize(state.sunSign || 'all signs')} for today.
+
+            Include:
+            1. 💡 **Morning Ritual** - How to start the day with positive energy
+            2. 🌟 **Power Hours** - Best times for important activities
+            3. 🎯 **Focus Areas** - What to prioritize today
+            4. 💬 **Communication Tips** - How to interact with others
+            5. ⚠️ **Things to Watch** - Potential challenges to be aware of
+
+            Be practical, specific, and empowering.`;
+            break;
+
+        case "do / don't":
+        case "do / don\\'t":
+            targetElement = 'horoscopeContent';
+            prompt = `IMPORTANT: Today is ${dateStr}.
+
+            As a professional astrologer, provide clear Do's and Don'ts for ${capitalize(state.sunSign || 'all signs')} today.
+
+            Format:
+
+            ✅ **DO:**
+            - [List 5 positive actions to take]
+
+            ❌ **DON'T:**
+            - [List 5 things to avoid]
+
+            Be specific and practical for today's cosmic energy.`;
+            break;
+
+        case "today's luck":
+            targetElement = 'horoscopeContent';
+            prompt = `IMPORTANT: Today is ${dateStr}.
+
+            As a professional astrologer, reveal today's luck factors for ${capitalize(state.sunSign || 'all signs')}.
+
+            Include:
+            🍀 **Lucky Color** - Specific shade and how to use it
+            🔢 **Lucky Numbers** - 3 numbers and their significance
+            ⏰ **Lucky Hour** - Best time window for opportunities
+            💎 **Lucky Crystal** - Gemstone to carry or wear
+            🌍 **Lucky Direction** - Which direction brings good fortune
+            🎲 **Lucky Activity** - One thing that will bring luck today
+
+            Be mystical and specific.`;
+            break;
+
+        case 'what are transits?':
+            targetElement = 'eventOfDay';
+            prompt = `IMPORTANT: Today is ${dateStr}.
+
+            As an astrology teacher, explain what planetary transits are and why they matter.
+
+            Include:
+            1. 📚 **Definition** - Simple explanation of transits
+            2. 🌌 **How They Work** - Planetary movements and their effects
+            3. ⏱️ **Duration** - Different transit timeframes
+            4. 💫 **Why They Matter** - Real-world impact on daily life
+            5. 🔍 **Current Transits** - What's happening in the sky today
+
+            Be educational yet mystical.`;
+            break;
+
+        case 'short-term transit':
+            targetElement = 'eventOfDay';
+            prompt = `IMPORTANT: Today is ${dateStr}.
+
+            As an expert astrologer, describe today's short-term planetary transits (Moon, Mercury, Venus).
+
+            Include:
+            🌙 **Moon Transit** - Where the moon is and what it means today
+            ☿️ **Mercury Influence** - Communication and thinking patterns
+            ♀️ **Venus Energy** - Love, beauty, and values today
+            ⏳ **Duration** - How long these energies last
+            💡 **Action Steps** - How to work with these transits
+
+            Be specific to today's date.`;
+            break;
+
+        case 'long-term transit':
+            targetElement = 'eventOfDay';
+            prompt = `IMPORTANT: Today is ${dateStr}.
+
+            As an expert astrologer, explain the current long-term planetary transits (Jupiter, Saturn, outer planets).
+
+            Include:
+            ♃ **Jupiter** - Where it is and growth opportunities
+            ♄ **Saturn** - Lessons and responsibilities
+            ♅ **Uranus** - Revolutionary changes
+            ♆ **Neptune** - Dreams and illusions
+            ♇ **Pluto** - Transformation themes
+            📅 **Timeline** - Duration of these major transits
+
+            Connect to broader life themes and current times.`;
+            break;
+
+        case 'moon rituals':
+            targetElement = 'moonDescription';
+            const moonData = calculateMoonPhase();
+            prompt = `IMPORTANT: Today is ${dateStr}.
+
+            As a spiritual guide and astrologer, provide moon rituals specifically for the ${moonData.phaseName} phase happening today.
+
+            Include:
+            🕯️ **Simple Ritual** - Easy 5-minute practice
+            📿 **Full Ceremony** - Detailed 30-minute ritual
+            🌿 **Materials Needed** - What to gather
+            📝 **Affirmations** - Specific to this moon phase
+            💭 **Meditation** - Guided visualization
+            ⏰ **Best Time** - When to perform the ritual today
+
+            Be specific, practical, and spiritually meaningful.`;
+            break;
+
+        default:
+            return; // Don't do anything for unknown cards
+    }
+
+    if (targetElement && prompt) {
+        // Show loading
+        const element = document.getElementById(targetElement);
+        if (element) {
+            element.innerHTML = `
+                <div class="loading">
+                    <div class="stars">⭐ ⭐ ⭐</div>
+                    <p>Loading ${cardTitle}...</p>
+                </div>
+            `;
+
+            // Get AI response
+            const response = await callGeminiAPI(prompt);
+
+            // Display response
+            element.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <button onclick="location.reload()" style="background: rgba(148, 163, 184, 0.2); border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 8px; padding: 8px 16px; color: var(--text-primary); cursor: pointer; font-size: 14px;">← Back</button>
+                </div>
+                <h2 style="font-size: 28px; margin-bottom: 20px; background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${cardTitle}</h2>
+                <div style="line-height: 1.8;">
+                    ${formatResponse(response)}
+                </div>
+            `;
+        }
+    }
 }
 
 // Setup Event Listeners
