@@ -1,5 +1,5 @@
 // Gemini API Configuration
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
 
 // State Management
 let state = {
@@ -117,7 +117,12 @@ async function saveSettingsHandler() {
 async function listAvailableModels() {
     try {
         console.log('Fetching available models...');
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${state.apiKey}`);
+        const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models', {
+            method: 'GET',
+            headers: {
+                'x-goog-api-key': state.apiKey
+            }
+        });
 
         if (!response.ok) {
             console.error('Failed to fetch models');
@@ -398,10 +403,11 @@ async function callGeminiAPI(prompt) {
     try {
         console.log('Calling Gemini API with endpoint:', GEMINI_API_ENDPOINT);
 
-        const response = await fetch(`${GEMINI_API_ENDPOINT}?key=${state.apiKey}`, {
+        const response = await fetch(GEMINI_API_ENDPOINT, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'x-goog-api-key': state.apiKey
             },
             body: JSON.stringify({
                 contents: [{
