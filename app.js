@@ -199,7 +199,19 @@ async function loadHoroscope() {
         return;
     }
 
-    const prompt = `As a professional astrologer, provide today's horoscope for ${capitalize(state.sunSign)}.
+    // Get current date info
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    const dayOfWeek = today.toLocaleDateString('en-US', { weekday: 'long' });
+
+    const prompt = `IMPORTANT: Today is ${dateStr}. This is the current date you must use for this horoscope.
+
+    As a professional astrologer, provide today's (${dayOfWeek}, ${dateStr}) horoscope for ${capitalize(state.sunSign)}.
 
     Include:
     1. 🌟 **Overall Energy** - General forecast for the day
@@ -223,7 +235,10 @@ async function loadHoroscope() {
     document.getElementById('horoscopeContent').innerHTML = `
         <div class="horoscope-header">
             ${zodiacSVG}
-            <h2 style="font-size: 28px; margin: 20px 0; background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${capitalize(state.sunSign)} Today</h2>
+            <div style="text-align: center;">
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">${dateStr}</p>
+                <h2 style="font-size: 28px; margin: 10px 0 20px 0; background: linear-gradient(135deg, var(--accent-gold), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${capitalize(state.sunSign)} Today</h2>
+            </div>
         </div>
         <div style="line-height: 1.8;">
             ${formatResponse(response)}
@@ -233,13 +248,22 @@ async function loadHoroscope() {
 
 // Load Astro Events
 async function loadAstroEvents() {
-    const today = new Date().toLocaleDateString('en-US', {
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    const monthDay = today.toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
         year: 'numeric'
     });
 
-    const prompt = `As an expert astrologer, tell me about the most significant astrological event happening today (${today}).
+    const prompt = `IMPORTANT: Today is ${dateStr}. This is the current date you must use.
+
+    As an expert astrologer, tell me about the most significant astrological event happening today (${dateStr}).
 
     Include:
     1. 🌌 **Event Name** - The main cosmic event (e.g., Mercury Retrograde, Jupiter Transit, Full Moon, etc.)
@@ -264,8 +288,8 @@ async function loadAstroEvents() {
     document.getElementById('eventOfDay').innerHTML = `
         <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
             ${planetSVG}
-            <div>
-                <p class="event-label">Event of the day</p>
+            <div style="flex: 1;">
+                <p class="event-label">${dateStr}</p>
                 <h2 class="event-title">${title}</h2>
             </div>
         </div>
@@ -280,8 +304,18 @@ async function loadMoonInfo() {
     const moonData = calculateMoonPhase();
     const moonSign = getCurrentMoonSign();
 
-    const prompt = `As an astrologer, explain the current ${moonData.phaseName} moon phase and what it means.
-    The moon is currently in ${moonSign}.
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+
+    const prompt = `IMPORTANT: Today is ${dateStr}. This is the current date.
+
+    As an astrologer, explain the current ${moonData.phaseName} moon phase happening today (${dateStr}) and what it means.
+    The moon is currently in ${moonSign} today.
 
     Include:
     1. 🌙 **Phase Meaning** - The spiritual and practical significance of ${moonData.phaseName}
