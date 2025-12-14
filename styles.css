@@ -110,6 +110,9 @@ header {
     margin-bottom: 20px;
     border: 1px solid rgba(148, 163, 184, 0.2);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
 }
 
 .you-header {
@@ -149,17 +152,32 @@ header {
     cursor: pointer;
     flex: 1;
     transition: all 0.3s ease;
+    pointer-events: auto;
+    position: relative;
+    z-index: 100;
 }
 
 .sign-select:hover {
     border-color: var(--accent-teal);
     background: rgba(26, 35, 50, 1);
+    transform: translateY(-1px);
 }
 
 .sign-select:focus {
     outline: none;
     border-color: var(--accent-gold);
-    box-shadow: 0 0 0 3px rgba(244, 197, 66, 0.1);
+    box-shadow: 0 0 0 3px rgba(244, 197, 66, 0.2);
+}
+
+.sign-select:active {
+    transform: translateY(0);
+    border-color: var(--accent-gold);
+}
+
+.sign-select option {
+    background: rgba(26, 35, 50, 1);
+    color: var(--text-primary);
+    padding: 10px;
 }
 
 .tabs {

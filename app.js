@@ -72,21 +72,40 @@ function setupEventListeners() {
         });
     });
 
-    // Zodiac Sign Changes
+    // Zodiac Sign Changes - All signs trigger reload
     sunSignSelect.addEventListener('change', (e) => {
+        console.log('Sun sign changed to:', e.target.value);
         state.sunSign = e.target.value;
         localStorage.setItem('sun_sign', e.target.value);
-        if (state.apiKey) loadContent();
+
+        // Reload content if on horoscope tab and API key exists
+        if (state.apiKey && state.currentTab === 'horoscope') {
+            loadContent();
+        }
     });
 
     moonSignSelect.addEventListener('change', (e) => {
+        console.log('Moon sign changed to:', e.target.value);
         state.moonSign = e.target.value;
         localStorage.setItem('moon_sign', e.target.value);
+
+        // Reload moon content if on moon tab
+        if (state.apiKey && state.currentTab === 'moon') {
+            loadContent();
+        }
     });
 
     risingSignSelect.addEventListener('change', (e) => {
+        console.log('Rising sign changed to:', e.target.value);
         state.risingSign = e.target.value;
         localStorage.setItem('rising_sign', e.target.value);
+
+        // Rising sign saved for future use
+        console.log('Rising sign saved. All signs:', {
+            sun: state.sunSign,
+            moon: state.moonSign,
+            rising: state.risingSign
+        });
     });
 }
 
@@ -199,6 +218,14 @@ async function loadHoroscope() {
         return;
     }
 
+    // Show loading state
+    document.getElementById('horoscopeContent').innerHTML = `
+        <div class="loading">
+            <div class="stars">⭐ ⭐ ⭐</div>
+            <p>Loading ${capitalize(state.sunSign)} forecast...</p>
+        </div>
+    `;
+
     // Get current date info
     const today = new Date();
     const dateStr = today.toLocaleDateString('en-US', {
@@ -248,6 +275,18 @@ async function loadHoroscope() {
 
 // Load Astro Events
 async function loadAstroEvents() {
+    // Show loading state
+    document.getElementById('eventOfDay').innerHTML = `
+        <p class="event-label">Event of the day</p>
+        <h2 class="event-title">Loading...</h2>
+        <div class="event-content">
+            <div class="loading">
+                <div class="stars">⭐ ⭐ ⭐</div>
+                <p>Calculating cosmic events...</p>
+            </div>
+        </div>
+    `;
+
     const today = new Date();
     const dateStr = today.toLocaleDateString('en-US', {
         weekday: 'long',
@@ -301,6 +340,14 @@ async function loadAstroEvents() {
 
 // Load Moon Information
 async function loadMoonInfo() {
+    // Show loading state
+    document.getElementById('moonDescription').innerHTML = `
+        <div class="loading">
+            <div class="stars">⭐ ⭐ ⭐</div>
+            <p>Calculating moon phase...</p>
+        </div>
+    `;
+
     const moonData = calculateMoonPhase();
     const moonSign = getCurrentMoonSign();
 
